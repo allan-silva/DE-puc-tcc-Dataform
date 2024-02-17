@@ -1,0 +1,120 @@
+config {
+    type: "view",
+    database: "puc-tcc-412315",
+    schema: "sus"
+}
+
+SELECT
+  DISTINCT estabelecimento.CNES AS cod_estabelecimento,
+  (
+    CASE estabelecimento.CPF_CNPJ
+      WHEN '00000000000000' THEN NULL
+    ELSE
+    estabelecimento.CPF_CNPJ
+  END
+    ) AS id_nacional_pessoa,
+  (
+    CASE estabelecimento.PF_PJ
+      WHEN '1' THEN 'Pessoa Física'
+      WHEN '3' THEN 'Pessoa Jurídica'
+    ELSE
+    'Outros'
+  END
+    ) AS tipo_pessoa_estabelecimento,
+  (
+    CASE estabelecimento.NIV_DEP
+      WHEN '1' THEN FALSE
+      WHEN '3' THEN TRUE
+    ELSE
+    FALSE
+  END
+    ) AS estabelecimento_mantido,
+  (
+    CASE estabelecimento.CNPJ_MAN
+      WHEN '00000000000000' THEN NULL
+    ELSE
+    estabelecimento.CNPJ_MAN
+  END
+    ) AS id_nacional_mantenedora,
+  (
+    CASE estabelecimento.VINC_SUS
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS vinculo_sus,
+  (
+    CASE estabelecimento.URGEMERG
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS atendimento_emergencia,
+  (
+    CASE estabelecimento.ATENDAMB
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS atendimento_ambulatorial,
+  (
+    CASE estabelecimento.ATENDHOS
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS atendimento_hospitalar,
+  (
+    CASE estabelecimento.CENTRCIR
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS possui_centro_cirurgico,
+  (
+    CASE estabelecimento.CENTROBS
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS possui_centro_obstetrico,
+  (
+    CASE estabelecimento.CENTRNEO
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS possui_unidade_neonatal,
+  (
+    CASE estabelecimento.COMISS01
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS possui_comissao_etica_medica,
+  (
+    CASE estabelecimento.COMISS02
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS possui_comissao_etica_enfermagem,
+  (
+    CASE estabelecimento.COMISS11
+      WHEN '1' THEN TRUE
+      WHEN '0' THEN FALSE
+    ELSE
+    FALSE
+  END
+    ) AS possui_comissao_notificacao_doenca
+FROM
+  ${ref("estabelecimentos")} estabelecimento
