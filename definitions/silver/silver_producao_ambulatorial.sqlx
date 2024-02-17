@@ -1,0 +1,13 @@
+config {
+    type: "view",
+    materialized: true,
+    database: "puc-tcc-412315",
+    schema: "informacoes_ambulatoriais"
+}
+
+SELECT
+  *
+FROM
+  ${ref("producao_ambulatorial")}
+LIMIT
+  100

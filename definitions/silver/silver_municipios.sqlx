@@ -1,12 +1,15 @@
 config {
     type: "view",
+    materialized: true,
     database: "puc-tcc-412315",
     schema: "sus"
 }
 
-SELECT DISTINCT
-municipio.CO_MUNICIP AS codigo
-, municipio.NO_MUNICIP AS nome
-, municipio.SG_UF AS uf
-FROM ${ref("municipios")} municipio
-WHERE municipio.ST_MUNICIP = 'ATIVO'
+SELECT
+  DISTINCT municipio.CO_MUNICIP AS codigo,
+  municipio.NO_MUNICIP AS nome,
+  municipio.SG_UF AS uf
+FROM
+  ${ref("municipios")} municipio
+WHERE
+  municipio.ST_MUNICIP = 'ATIVO'
