@@ -1,7 +1,8 @@
 config {
     type: "view",
     database: "puc-tcc-412315",
-    schema: "sus"
+    schema: "sus",
+    dependencies: ["silver_municipios"]
 }
 
 SELECT
@@ -13,6 +14,7 @@ SELECT
     estabelecimento.CPF_CNPJ
   END
     ) AS id_nacional_pessoa,
+  cnpj_estabelecimento.razao_social AS razao_social_estabelecimento,
   (
     CASE estabelecimento.PF_PJ
       WHEN '1' THEN 'Pessoa Física'
@@ -36,6 +38,7 @@ SELECT
     estabelecimento.CNPJ_MAN
   END
     ) AS id_nacional_mantenedora,
+  cnpj_mantenedora.razao_social AS razao_social_mantenedora,
   (
     CASE estabelecimento.VINC_SUS
       WHEN '1' THEN TRUE
@@ -115,6 +118,20 @@ SELECT
     ELSE
     FALSE
   END
-    ) AS possui_comissao_notificacao_doenca
+    ) AS possui_comissao_notificacao_doenca,
+  municipio.nome,
+  municipio.uf
 FROM
   ${ref("estabelecimentos")} estabelecimento
+LEFT JOIN
+  ${ref("cnpjs")} cnpj_estabelecimento
+ON
+  estabelecimento.CPF_CNPJ = cnpj_estabelecimento.cnpj
+LEFT JOIN
+  ${ref("cnpjs")} cnpj_mantenedora
+ON
+  estabelecimento.CNPJ_MAN = cnpj_mantenedora.cnpj
+LEFT JOIN
+  ${ref("silver_municipios")} municipio
+ON
+  CAST(estabelecimento.CODUFMUN AS INT) = municipio.codigo

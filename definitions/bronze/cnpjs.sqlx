@@ -1,0 +1,6 @@
+config {
+    type: "declaration",
+    database: "puc-tcc-412315",
+    schema: "sus",
+    name: "cnpjs"
+}
