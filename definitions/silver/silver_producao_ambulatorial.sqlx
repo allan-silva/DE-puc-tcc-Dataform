@@ -1,6 +1,5 @@
 config {
-    type: "view",
-    materialized: true,
+    type: "table",
     database: "puc-tcc-412315",
     schema: "informacoes_ambulatoriais",
     dependencies: ["silver_procedimentos", "silver_estabelecimento"]
