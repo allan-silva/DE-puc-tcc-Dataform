@@ -38,6 +38,7 @@ SELECT
   procedimento.valor_ambulatorial AS valor_unitario_ambulatorial_tabela,
   procedimento.valor_profissional AS valor_unitario_profissional_tabela,
   --PA
+  pa.PA_PROC_ID AS pa_cod_procedimento, 
   (
     CASE pa.PA_TPFIN
       WHEN '01' THEN 'Atenção Básica (PAB)'
