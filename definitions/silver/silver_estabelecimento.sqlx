@@ -119,8 +119,8 @@ SELECT
     FALSE
   END
     ) AS possui_comissao_notificacao_doenca,
-  municipio.nome,
-  municipio.uf
+  municipio.nome AS nome_municipio,
+  municipio.uf AS uf_municipio
 FROM
   ${ref("estabelecimentos")} estabelecimento
 LEFT JOIN
