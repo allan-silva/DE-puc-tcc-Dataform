@@ -1,0 +1,26 @@
+config {
+    type: "view",
+    database: "puc-tcc-412315",
+    schema: "sus"
+}
+
+SELECT
+    procedimento.codigo,
+    procedimento.nome,
+    (
+        CASE procedimento.complexidade
+            WHEN '0' THEN 'Não se aplica'
+            WHEN '1' THEN 'Atenção Básica Complexidade'
+            WHEN '2' THEN 'Média Complexidade'
+            WHEN '3' THEN 'Alta Complexidade'
+            ELSE 'Não especificado'
+        END
+    ) AS complexidade,
+    CAST(CAST(procedimento.valor_hospitalar AS INT)/100 AS NUMERIC) AS valor_hospitalar,
+    CAST(CAST(procedimento.valor_ambulatorial AS INT)/100 AS NUMERIC) AS  valor_ambulatorial,
+    CAST(CAST(procedimento.valor_profissional AS INT)/100 AS NUMERIC) AS  valor_profissional,
+    procedimento.competencia,
+    SUBSTR(procedimento.competencia, 1, 4) AS ano_competencia,
+    SUBSTR(procedimento.competencia, 5, 2) AS mes_competencia
+FROM
+${ref("procedimentos")} procedimento

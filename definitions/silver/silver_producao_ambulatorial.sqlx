@@ -1,6 +1,5 @@
 config {
     type: "view",
-    materialized: true,
     database: "puc-tcc-412315",
     schema: "informacoes_ambulatoriais"
 }
