@@ -38,7 +38,10 @@ SELECT
   procedimento.valor_ambulatorial AS valor_unitario_ambulatorial_tabela,
   procedimento.valor_profissional AS valor_unitario_profissional_tabela,
   --PA
-  pa.PA_PROC_ID AS pa_cod_procedimento, 
+  pa.PA_PROC_ID AS pa_cod_procedimento,
+  pa.PA_CMP AS pa_competencia,
+  SUBSTR(pa.PA_CMP, 1, 4) AS pa_ano_competencia,
+  SUBSTR(pa.PA_CMP, 5, 2) AS pa_mes_competencia,
   (
     CASE pa.PA_TPFIN
       WHEN '01' THEN 'Atenção Básica (PAB)'
@@ -137,4 +140,5 @@ LEFT JOIN
   ${ref("silver_municipios")} municipio_paciente
 ON
   CAST(pa.PA_MUNPCN AS INT) = municipio_paciente.codigo
-  WHERE pa.PA_QTDPRO > 1
+WHERE
+  pa.PA_QTDPRO > 1
