@@ -135,7 +135,7 @@ LEFT JOIN
   ${ref("silver_procedimentos")} procedimento
 ON
   (pa.PA_PROC_ID = procedimento.codigo
-    AND pa.PA_CMP = procedimento.competencia)
+    AND pa.PA_MVM = procedimento.competencia)
 LEFT JOIN
   ${ref("silver_municipios")} municipio_paciente
 ON
