@@ -84,7 +84,7 @@ SELECT
       WHEN 'S' THEN 'APAC - Procedimento Secundário'
       WHEN 'C' THEN 'BPA-C'
       WHEN 'A' THEN 'RAAS-AD'
-      WHEN 'B' THEN 'RAAS – Psicossocial'
+      WHEN 'B' THEN 'RAAS - Psicossocial'
       WHEN 'I' THEN 'BPA - Individualizado'
     ELSE
     'Não especificado'
@@ -127,18 +127,16 @@ INNER JOIN
   ${ref("silver_estabelecimento")} estabelecimento_pa
 ON
   pa.PA_CODUNI = estabelecimento_pa.cod_estabelecimento
-LEFT JOIN
-  ${ref("cnpjs")} cnpj_executante
-ON
-  pa.PA_CNPJCPF = cnpj_executante.cnpj
-LEFT JOIN
+INNER JOIN
   ${ref("silver_procedimentos")} procedimento
 ON
   (pa.PA_PROC_ID = procedimento.codigo
     AND pa.PA_MVM = procedimento.competencia)
 LEFT JOIN
+  ${ref("cnpjs")} cnpj_executante
+ON
+  pa.PA_CNPJCPF = cnpj_executante.cnpj
+LEFT JOIN
   ${ref("silver_municipios")} municipio_paciente
 ON
   CAST(pa.PA_MUNPCN AS INT) = municipio_paciente.codigo
-WHERE
-  pa.PA_QTDPRO > 1
