@@ -1,12 +1,140 @@
 config {
     type: "view",
+    materialized: true,
     database: "puc-tcc-412315",
-    schema: "informacoes_ambulatoriais"
+    schema: "informacoes_ambulatoriais",
+    dependencies: ["silver_procedimentos", "silver_estabelecimento"]
 }
 
 SELECT
-  *
+  -- Estabelecimento
+  pa.PA_CODUNI AS cod_estabelecimento,
+  estabelecimento_pa.nome_municipio AS municipio_estabelecimento,
+  estabelecimento_pa.uf_municipio AS uf_municipio_estabelecimento,
+  estabelecimento_pa.estabelecimento_mantido,
+  (
+    CASE estabelecimento_pa.estabelecimento_mantido
+      WHEN TRUE THEN estabelecimento_pa.id_nacional_mantenedora
+    ELSE
+    estabelecimento_pa.id_nacional_pessoa
+  END
+    ) AS cnpj_producao,
+  (
+    CASE estabelecimento_pa.estabelecimento_mantido
+      WHEN TRUE THEN estabelecimento_pa.razao_social_mantenedora
+    ELSE
+    estabelecimento_pa.razao_social_estabelecimento
+  END
+    ) AS razao_social_producao,
+  --Excutante
+  cnpj_executante.cnpj AS cnpj_executante,
+  cnpj_executante.razao_social AS razao_social_executante,
+  --Procedimento
+  procedimento.codigo AS cod_procedimento,
+  procedimento.nome AS descricao_procedimento,
+  procedimento.complexidade AS complexidade_procedimento,
+  procedimento.ano_competencia,
+  procedimento.mes_competencia,
+  procedimento.valor_hospitalar AS valor_unitario_hospitalar_tabela,
+  procedimento.valor_ambulatorial AS valor_unitario_ambulatorial_tabela,
+  procedimento.valor_profissional AS valor_unitario_profissional_tabela,
+  --PA
+  (
+    CASE pa.PA_TPFIN
+      WHEN '01' THEN 'Atenção Básica (PAB)'
+      WHEN '02' THEN 'Média e Alta complecidade (MAC)'
+      WHEN '03' THEN 'Fundo de Ações Estratégicas e Compensações (FAEC)'
+      WHEN '04' THEN 'Viligância em Saúde'
+      WHEN '05' THEN 'Assistência Farmacêutica'
+      WHEN '06' THEN 'Assistência Farmacêutica e MAC'
+      WHEN '07' THEN 'Incentivo MAC'
+    ELSE
+    'Não especificado'
+  END
+    ) AS tipo_financiamento,
+  pa.PA_QTDPRO AS quantidade_declarada_procedimento,
+  pa.PA_QTDAPR AS quantidade_aprovada_procedimento,
+  pa.PA_VALPRO AS valor_declarado_procedimento,
+  pa.PA_VALAPR AS valor_aprovado_procedimento,
+  (CASE
+      WHEN pa.PA_VALPRO <> 0 AND procedimento.valor_ambulatorial <> 0 THEN (((pa.PA_VALPRO/(procedimento.valor_ambulatorial*pa.PA_QTDPRO))-1)*100)
+      WHEN pa.PA_VALPRO <> 0
+    AND procedimento.valor_hospitalar <> 0 THEN (((pa.PA_VALPRO/(procedimento.valor_hospitalar*pa.PA_QTDPRO))-1)*100)
+      WHEN pa.PA_VALPRO <> 0 AND procedimento.valor_profissional <> 0 THEN (((pa.PA_VALPRO/(procedimento.valor_profissional*pa.PA_QTDPRO))-1)*100)
+    ELSE
+    0
+  END
+    ) AS divergencia_valor_declarado,
+  --(((pa.PA_VALPRO/procedimento.valor_ambulatorial)-1)*100) AS divergencia_valor_declarado,
+  (CASE pa.PA_INDICA
+      WHEN '0' THEN 'Não aprovado'
+      WHEN '5' THEN 'Aprovado total'
+      WHEN '6' THEN 'Aprovado parcial'
+    ELSE
+    'Não especificado'
+  END
+    ) AS situacao_producao,
+  --Adicionar divergencia tabela x aprovado
+  --Adicionar divergencia tabela x declarado
+  (CASE pa.PA_DOCORIG
+      WHEN 'P' THEN 'APAC - Procedimento principal'
+      WHEN 'S' THEN 'APAC - Procedimento Secundário'
+      WHEN 'C' THEN 'BPA-C'
+      WHEN 'A' THEN 'RAAS-AD'
+      WHEN 'B' THEN 'RAAS – Psicossocial'
+      WHEN 'I' THEN 'BPA - Individualizado'
+    ELSE
+    'Não especificado'
+  END
+    ) AS origem_informacao,
+  --Paciente
+  pa.PA_SEXO AS sexo_paciente,
+  (CASE pa.PA_RACACOR
+      WHEN '01' THEN 'Branca'
+      WHEN '02' THEN 'Preta'
+      WHEN '03' THEN 'Parda'
+      WHEN '04' THEN 'Amarela'
+      WHEN '05' THEN 'Indígena'
+      WHEN '99' THEN 'Sem informação'
+    ELSE
+    'Não especificado'
+  END
+    ) AS raca_cor_paciente,
+  municipio_paciente.nome AS municipio_paciente,
+  municipio_paciente.uf AS uf_paciente,
+  (
+    CASE pa.PA_UFDIF
+      WHEN '0' THEN TRUE
+      WHEN '1' THEN FALSE
+    ELSE
+    NULL
+  END
+    ) AS paciente_reside_mesmo_estado_estabelecimento,
+  (
+    CASE pa.PA_MNDIF
+      WHEN '0' THEN TRUE
+      WHEN '1' THEN FALSE
+    ELSE
+    NULL
+  END
+    ) AS paciente_reside_mesmo_municipio_estabelecimento,
 FROM
-  ${ref("producao_ambulatorial")}
-LIMIT
-  100
+  ${ref("producao_ambulatorial")} pa
+INNER JOIN
+  ${ref("silver_estabelecimento")} estabelecimento_pa
+ON
+  pa.PA_CODUNI = estabelecimento_pa.cod_estabelecimento
+LEFT JOIN
+  ${ref("cnpjs")} cnpj_executante
+ON
+  pa.PA_CNPJCPF = cnpj_executante.cnpj
+LEFT JOIN
+  ${ref("silver_procedimentos")} procedimento
+ON
+  (pa.PA_PROC_ID = procedimento.codigo
+    AND pa.PA_CMP = procedimento.competencia)
+LEFT JOIN
+  ${ref("silver_municipios")} municipio_paciente
+ON
+  CAST(pa.PA_MUNPCN AS INT) = municipio_paciente.codigo
+  WHERE pa.PA_QTDPRO > 1
