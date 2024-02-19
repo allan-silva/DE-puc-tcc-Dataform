@@ -18,6 +18,13 @@ SELECT
     ) AS total_estabelecimentos_mantidos,
   SUM(
     CASE
+      WHEN estabelecimento.estabelecimento_mantido THEN 0
+    ELSE
+    1
+  END
+    ) AS total_estabelecimentos_independentes,
+  SUM(
+    CASE
       WHEN estabelecimento.vinculo_sus THEN 1
     ELSE
     0
