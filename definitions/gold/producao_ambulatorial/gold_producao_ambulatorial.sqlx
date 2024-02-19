@@ -4,3 +4,42 @@ config {
     schema: "sus",
     dependencies: ["silver_producao_ambulatorial"]
 }
+
+SELECT
+  'Brasil' AS Brasil,
+  pa.uf_municipio_estabelecimento,
+  pa.municipio_estabelecimento,
+  pa.cnpj_producao,
+  pa.razao_social_producao,
+  pa.complexidade_procedimento,
+  pa.descricao_procedimento,
+  pa.tipo_financiamento,
+  pa.situacao_producao,
+  pa.origem_informacao,
+  SUM(pa.valor_declarado_procedimento) AS valor_declarado_procedimento,
+  SUM(pa.valor_aprovado_procedimento) AS valor_aprovado_procedimento,
+  SUM(pa.divergencia_valor_declarado) AS divergencia_valor_declarado_tabela,
+  SUM(CASE
+      WHEN pa.paciente_reside_mesmo_estado_estabelecimento THEN 1
+    ELSE
+    0
+  END
+    ) AS paciente_reside_mesmo_estado_estabelecimento,
+  SUM(CASE
+      WHEN pa.paciente_reside_mesmo_municipio_estabelecimento THEN 1
+    ELSE
+    0
+  END
+    ) AS paciente_reside_mesmo_municipio_estabelecimento
+FROM
+  ${ref("silver_producao_ambulatorial")} pa
+GROUP BY
+  pa.uf_municipio_estabelecimento,
+  pa.municipio_estabelecimento,
+  pa.cnpj_producao,
+  pa.razao_social_producao,
+  pa.complexidade_procedimento,
+  pa.descricao_procedimento,
+  pa.tipo_financiamento,
+  pa.situacao_producao,
+  pa.origem_informacao
