@@ -1,0 +1,6 @@
+config {
+    type: "table",
+    database: "puc-tcc-412315",
+    schema: "sus",
+    dependencies: ["silver_producao_ambulatorial"]
+}
