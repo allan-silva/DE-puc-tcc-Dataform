@@ -1,0 +1,72 @@
+config {
+    type: "table",
+    database: "puc-tcc-412315",
+    schema: "sus",
+    dependencies: ["silver_estabelecimento"]
+}
+
+SELECT
+  estabelecimento.uf_municipio AS uf,
+  estabelecimento.nome_municipio AS municipio,
+  COUNT(*) AS total_estabelecimentos,
+  SUM(
+    CASE
+      WHEN estabelecimento.estabelecimento_mantido THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_mantidos,
+  SUM(
+    CASE
+      WHEN estabelecimento.vinculo_sus THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_vinculo_sus,
+  SUM(
+    CASE
+      WHEN estabelecimento.atendimento_emergencia THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_atendimento_emergencia,
+  SUM(
+    CASE
+      WHEN estabelecimento.atendimento_ambulatorial THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_atendimento_ambulatorial,
+  SUM(
+    CASE
+      WHEN estabelecimento.atendimento_hospitalar THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_atendimento_hospitalar,
+  SUM(
+    CASE
+      WHEN estabelecimento.possui_comissao_etica_medica THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_possui_comissao_etica_medica,
+  SUM(
+    CASE
+      WHEN estabelecimento.possui_comissao_etica_enfermagem THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_possui_comissao_etica_enfermagem,
+  SUM(
+    CASE
+      WHEN estabelecimento.possui_comissao_notificacao_doenca THEN 1
+    ELSE
+    0
+  END
+    ) AS total_estabelecimentos_possui_comissao_notificacao_doenca
+FROM
+  ${ref("silver_estabelecimento")} estabelecimento
+GROUP BY
+  estabelecimento.uf_municipio,
+  estabelecimento.nome_municipio
