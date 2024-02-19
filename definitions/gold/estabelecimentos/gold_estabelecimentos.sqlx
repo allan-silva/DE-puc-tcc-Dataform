@@ -6,6 +6,7 @@ config {
 }
 
 SELECT
+  'Brasil' AS Brasil,
   estabelecimento.uf_municipio AS uf,
   estabelecimento.nome_municipio AS municipio,
   COUNT(*) AS total_estabelecimentos,
