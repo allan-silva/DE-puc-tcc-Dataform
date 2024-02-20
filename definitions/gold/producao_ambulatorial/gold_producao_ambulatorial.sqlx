@@ -1,7 +1,7 @@
 config {
     type: "table",
     database: "puc-tcc-412315",
-    schema: "sus",
+    schema: "informacoes_ambulatoriais",
     dependencies: ["silver_producao_ambulatorial"]
 }
 
